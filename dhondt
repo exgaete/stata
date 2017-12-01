@@ -1,0 +1,356 @@
+**Calculo de DHondt. Sin Umbral
+**Aplicado en pactos y subpactos
+**do file para hasta 15 escaños.
+ 
+***Base de datos debe contener las siguientes variables
+*comuna (eventualmente reemplazar por distrito)
+*pacto
+*subpacto
+*candidato
+*votos
+*magnitud (del distrito)
+ 
+ 
+***Votos validamente emitidos
+ 
+drop if candidato=="VOTOS NULOS"
+drop if candidato=="VOTOS BLANCOS"
+drop if pacto=="" 
+
+**Asignacion de escaños a pactos
+ 
+g va01 = 1
+g va02 = 2
+g va03 = 3
+g va04 = 4
+g va05 = 5
+g va06 = 6
+g va07 = 7
+g va08 = 8
+g va09 = 9
+g va10 = 10
+g va11 = 11
+g va12 = 12
+g va13 = 13
+g va14 = 14
+g va15 = 15
+ 
+
+ 
+egen vot_pacto = sum(votos), by(comuna pacto)
+ 
+preserve
+g coef = vot_pacto/ va01
+duplicates drop comuna pacto, force 
+keep comuna pacto va* coef vot_pacto magnitud
+save "C:\data/201711b/coef/coef01.dta",replace
+restore
+ 
+preserve
+g coef = vot_pacto/ va02
+duplicates drop comuna pacto, force 
+keep comuna pacto va* coef vot_pacto magnitud
+save "C:\data/201711b/coef/coef02.dta",replace
+restore
+ 
+preserve
+g coef = vot_pacto/ va03
+duplicates drop comuna pacto, force 
+keep comuna pacto va* coef vot_pacto magnitud
+save "C:\data/201711b/coef/coef03.dta",replace
+restore
+ 
+preserve
+g coef = vot_pacto/ va04
+duplicates drop comuna pacto, force 
+keep comuna pacto va* coef vot_pacto magnitud
+save "C:\data/201711b/coef/coef04.dta",replace
+restore
+ 
+preserve
+g coef = vot_pacto/ va05
+duplicates drop comuna pacto, force 
+keep comuna pacto va* coef vot_pacto magnitud
+save "C:\data/201711b/coef/coef05.dta",replace
+restore
+ 
+preserve
+g coef = vot_pacto/ va06
+duplicates drop comuna pacto, force 
+keep comuna pacto va* coef vot_pacto magnitud
+save "C:\data/201711b/coef/coef06.dta",replace
+restore
+ 
+preserve
+g coef = vot_pacto/ va07
+duplicates drop comuna pacto, force 
+keep comuna pacto va* coef vot_pacto magnitud
+save "C:\data/201711b/coef/coef07.dta",replace
+restore
+ 
+preserve
+g coef = vot_pacto/ va08
+duplicates drop comuna pacto, force 
+keep comuna pacto va* coef vot_pacto magnitud
+save "C:\data/201711b/coef/coef08.dta",replace
+restore
+ 
+preserve
+g coef = vot_pacto/ va09
+duplicates drop comuna pacto, force 
+keep comuna pacto va* coef vot_pacto magnitud
+save "C:\data/201711b/coef/coef09.dta",replace
+restore
+ 
+preserve
+g coef = vot_pacto/ va10
+duplicates drop comuna pacto, force 
+keep comuna pacto va* coef vot_pacto magnitud
+save "C:\data/201711b/coef/coef10.dta",replace
+restore
+ 
+preserve
+g coef = vot_pacto/ va11
+duplicates drop comuna pacto, force 
+keep comuna pacto va* coef vot_pacto magnitud
+save "C:\data/201711b/coef/coef11.dta",replace
+restore
+ 
+preserve
+g coef = vot_pacto/ va12
+duplicates drop comuna pacto, force 
+keep comuna pacto va* coef vot_pacto magnitud
+save "C:\data/201711b/coef/coef12.dta",replace
+restore
+ 
+preserve
+g coef = vot_pacto/ va13
+duplicates drop comuna pacto, force 
+keep comuna pacto va* coef vot_pacto magnitud
+save "C:\data/201711b/coef/coef13.dta",replace
+restore
+ 
+preserve
+g coef = vot_pacto/ va14
+duplicates drop comuna pacto, force 
+keep comuna pacto va* coef vot_pacto magnitud
+save "C:\data/201711b/coef/coef14.dta",replace
+restore
+ 
+preserve
+g coef = vot_pacto/ va15
+duplicates drop comuna pacto, force 
+keep comuna pacto va* coef vot_pacto magnitud
+save "C:\data/201711b/coef/coef15.dta",replace
+restore
+ 
+use "C:\data/201711b/coef/coef01.dta", clear
+append using "C:\data/201711b/coef/coef02.dta"
+append using "C:\data/201711b/coef/coef03.dta"
+append using "C:\data/201711b/coef/coef04.dta"
+append using "C:\data/201711b/coef/coef05.dta"
+append using "C:\data/201711b/coef/coef06.dta"
+append using "C:\data/201711b/coef/coef07.dta"
+append using "C:\data/201711b/coef/coef08.dta"
+append using "C:\data/201711b/coef/coef09.dta"
+append using "C:\data/201711b/coef/coef10.dta"
+append using "C:\data/201711b/coef/coef11.dta"
+append using "C:\data/201711b/coef/coef12.dta"
+append using "C:\data/201711b/coef/coef13.dta"
+append using "C:\data/201711b/coef/coef14.dta"
+append using "C:\data/201711b/coef/coef15.dta"
+ 
+gsort comuna -coef
+                bysort comuna: g orden = _n
+ 
+g elxpacto = magnitud >= orden
+ 
+***Variable mag_pacto es la cantidad de
+*** personas que elige el pacto
+               
+egen mag_pacto = sum(elxpacto), by(comuna pacto)
+keep comuna pacto vot_pacto magnitud mag_pacto
+duplicates drop comuna pacto, force
+sort comuna pacto
+save "C:\data/201711b/aux01",replace
+ 
+use "C:\data/201711b/diputados.dta", clear
+sort comuna pacto
+merge n:1 comuna pacto using "C:\data/201711b/aux01.dta"
+drop _merge
+ 
+save "C:\data/201711b/diputados01.dta",replace
+ 
+***Asignacion de escaños por subpacto
+ 
+g vas01 = 1
+g vas02 = 2
+g vas03 = 3
+g vas04 = 4
+g vas05 = 5
+g vas06 = 6
+g vas07 = 7
+g vas08 = 8
+g vas09 = 9
+g vas10 = 10
+g vas11 = 11
+g vas12 = 12
+g vas13 = 13
+g vas14 = 14
+g vas15 = 15
+ 
+egen vot_spacto = sum(votos), by(comuna pacto subpacto)
+ 
+preserve
+g coef = vot_spacto/ vas01
+duplicates drop comuna pacto subpacto, force 
+keep comuna pacto subpacto vas* coef vot_spacto mag_pacto
+save "C:\data/201711b/coef/coefs01.dta",replace
+restore
+ 
+preserve
+g coef = vot_spacto/ vas02
+duplicates drop comuna pacto subpacto, force 
+keep comuna pacto subpacto vas* coef vot_spacto mag_pacto
+save "C:\data/201711b/coef/coefs02.dta",replace
+restore
+ 
+preserve
+g coef = vot_spacto/ vas03
+duplicates drop comuna pacto subpacto, force 
+keep comuna pacto subpacto vas* coef vot_spacto mag_pacto
+save "C:\data/201711b/coef/coefs03.dta",replace
+restore
+ 
+preserve
+g coef = vot_spacto/ vas04
+duplicates drop comuna pacto subpacto, force 
+keep comuna pacto subpacto vas* coef vot_spacto mag_pacto
+save "C:\data/201711b/coef/coefs04.dta",replace
+restore
+ 
+preserve
+g coef = vot_spacto/ vas05
+duplicates drop comuna pacto subpacto, force 
+keep comuna pacto subpacto vas* coef vot_spacto mag_pacto
+save "C:\data/201711b/coef/coefs05.dta",replace
+restore
+ 
+preserve
+g coef = vot_spacto/ vas06
+duplicates drop comuna pacto subpacto, force 
+keep comuna pacto subpacto vas* coef vot_spacto mag_pacto
+save "C:\data/201711b/coef/coefs06.dta",replace
+restore
+ 
+preserve
+g coef = vot_spacto/ vas07
+duplicates drop comuna pacto subpacto, force 
+keep comuna pacto subpacto vas* coef vot_spacto mag_pacto
+save "C:\data/201711b/coef/coefs07.dta",replace
+restore
+ 
+preserve
+g coef = vot_spacto/ vas08
+duplicates drop comuna pacto subpacto, force 
+keep comuna pacto subpacto vas* coef vot_spacto mag_pacto
+save "C:\data/201711b/coef/coefs08.dta",replace
+restore
+ 
+preserve
+g coef = vot_spacto/ vas09
+duplicates drop comuna pacto subpacto, force 
+keep comuna pacto subpacto vas* coef vot_spacto mag_pacto
+save "C:\data/201711b/coef/coefs09.dta",replace
+restore
+ 
+preserve
+g coef = vot_spacto/ vas10
+duplicates drop comuna pacto subpacto, force 
+keep comuna pacto subpacto vas* coef vot_spacto mag_pacto
+save "C:\data/201711b/coef/coefs10.dta",replace
+restore
+ 
+preserve
+g coef = vot_spacto/ vas11
+duplicates drop comuna pacto subpacto, force 
+keep comuna pacto subpacto vas* coef vot_spacto mag_pacto
+save "C:\data/201711b/coef/coefs11.dta",replace
+restore
+ 
+preserve
+g coef = vot_spacto/ vas12
+duplicates drop comuna pacto subpacto, force 
+keep comuna pacto subpacto vas* coef vot_spacto mag_pacto
+save "C:\data/201711b/coef/coefs12.dta",replace
+restore
+ 
+preserve
+g coef = vot_spacto/ vas13
+duplicates drop comuna pacto subpacto, force 
+keep comuna pacto subpacto vas* coef vot_spacto mag_pacto
+save "C:\data/201711b/coef/coefs13.dta",replace
+restore
+ 
+preserve
+g coef = vot_spacto/ vas14
+duplicates drop comuna pacto subpacto, force 
+keep comuna pacto subpacto vas* coef vot_spacto mag_pacto
+save "C:\data/201711b/coef/coefs14.dta",replace
+restore
+ 
+preserve
+g coef = vot_spacto/ vas15
+duplicates drop comuna pacto subpacto, force 
+keep comuna pacto subpacto vas* coef vot_spacto mag_pacto
+save "C:\data/201711b/coef/coefs15.dta",replace
+restore
+ 
+use "C:\data/201711b/coef/coefs01.dta", clear
+append using "C:\data/201711b/coef/coefs02.dta"
+append using "C:\data/201711b/coef/coefs03.dta"
+append using "C:\data/201711b/coef/coefs04.dta"
+append using "C:\data/201711b/coef/coefs05.dta"
+append using "C:\data/201711b/coef/coefs06.dta"
+append using "C:\data/201711b/coef/coefs07.dta"
+append using "C:\data/201711b/coef/coefs08.dta"
+append using "C:\data/201711b/coef/coefs09.dta"
+append using "C:\data/201711b/coef/coefs10.dta"
+append using "C:\data/201711b/coef/coefs11.dta"
+append using "C:\data/201711b/coef/coefs12.dta"
+append using "C:\data/201711b/coef/coefs13.dta"
+append using "C:\data/201711b/coef/coefs14.dta"
+append using "C:\data/201711b/coef/coefs15.dta"
+ 
+gsort comuna pacto -coef
+                bysort comuna pacto: g orden_s = _n
+ 
+g elxspacto = mag_pacto >= orden_s
+ 
+***Variable mag_spacto equivale a la cantidad de
+*** escaños que corresponde a cada subpacto
+               
+egen mag_spacto = sum(elxspacto), by(comuna pacto subpacto)
+keep comuna pacto subpacto vot_spacto mag_spacto orden_s
+duplicates drop comuna pacto subpacto, force
+sort comuna pacto subpacto
+save "C:\data/201711b/aux02",replace
+ 
+use "C:\data/201711b/diputados01.dta", clear
+sort comuna pacto subpacto
+merge n:1 comuna pacto subpacto using "C:\data/201711b/aux02.dta"
+drop _merge
+ 
+save "C:\data/201711b/diputados02.dta",replace
+ 
+***Asignacion de escaños a candidatos
+ 
+gsort comuna pacto subpacto -votos
+                bysort comuna pacto subpacto: g orden_c = _n
+                g elegido = (orden_c<=mag_spacto)
+               
+bysort comuna pacto subpacto : g alerta = (votos[_n]==votos[_n+1]) & (mag_spacto==orden_c)
+ 
+gsort comuna pacto subpacto -votos
+ 
+save "C:\data/201711b/diputados02.dta",replace
