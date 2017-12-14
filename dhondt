@@ -1,6 +1,8 @@
 **Calculo de DHondt. Sin Umbral
 **Aplicado en pactos y subpactos
 **do file para hasta 15 escaños.
+***Créditos especiales a Gustavo Cabezas, sin cuya ayuda hubiese sido imposible desarrollar este código.
+
  
 ***Base de datos debe contener las siguientes variables
 *comuna (eventualmente reemplazar por distrito)
